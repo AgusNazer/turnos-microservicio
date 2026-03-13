@@ -1,5 +1,7 @@
 package com.turnos.turnos.controllers;
 
+import com.turnos.turnos.dtos.TurnoRequestDto;
+import com.turnos.turnos.dtos.TurnoResponseDto;
 import com.turnos.turnos.models.Turnos;
 import com.turnos.turnos.services.ITurnoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/turnos")
@@ -21,23 +24,31 @@ public class TurnoController {
 
     @Operation(summary = "Crear un turno")
     @PostMapping
-    public ResponseEntity<String> createTurno(@RequestBody Turnos turno) {
+    public ResponseEntity<String> createTurno(@RequestBody TurnoRequestDto turnoRequestDto) {
+        Turnos turno = new Turnos();
+        turno.setIdPaciente(turnoRequestDto.getIdPaciente());
+        turno.setDescription(turnoRequestDto.getDescription());
+        turno.setDate(turnoRequestDto.getDate());
         turnoService.saveTurno(turno);
         return ResponseEntity.status(HttpStatus.CREATED).body("Turno creado exitosamente");
     }
 
     @Operation(summary = "Obtener todos los turnos")
     @GetMapping
-    public ResponseEntity<List<Turnos>> getAllTurnos() {
-        return ResponseEntity.ok(turnoService.getAllTurnos());
+    public ResponseEntity<List<TurnoResponseDto>> getAllTurnos() {
+        List<TurnoResponseDto> turnos = turnoService.getAllTurnos()
+                .stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(turnos);
     }
 
     @Operation(summary = "Obtener un turno por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Turnos> getTurnoById(@PathVariable Long id) {
+    public ResponseEntity<TurnoResponseDto> getTurnoById(@PathVariable Long id) {
         Turnos turno = turnoService.findTurnoById(id);
         if (turno == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(turno);
+        return ResponseEntity.ok(toResponseDto(turno));
     }
 
     @Operation(summary = "Eliminar un turno por ID")
@@ -51,13 +62,22 @@ public class TurnoController {
 
     @Operation(summary = "Actualizar un turno por ID")
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateTurno(@PathVariable Long id, @RequestBody Turnos turno) {
+    public ResponseEntity<String> updateTurno(@PathVariable Long id, @RequestBody TurnoRequestDto turnoRequestDto) {
         Turnos existingTurno = turnoService.findTurnoById(id);
         if (existingTurno == null) return ResponseEntity.notFound().build();
-        existingTurno.setDate(turno.getDate());
-        existingTurno.setIdPaciente(turno.getIdPaciente());
-        existingTurno.setDescription(turno.getDescription());
+        existingTurno.setDate(turnoRequestDto.getDate());
+        existingTurno.setIdPaciente(turnoRequestDto.getIdPaciente());
+        existingTurno.setDescription(turnoRequestDto.getDescription());
         turnoService.saveTurno(existingTurno);
         return ResponseEntity.ok("Turno actualizado exitosamente");
+    }
+
+    private TurnoResponseDto toResponseDto(Turnos turno) {
+        TurnoResponseDto responseDto = new TurnoResponseDto();
+        responseDto.setIdTurno(turno.getIdTurno());
+        responseDto.setIdPaciente(turno.getIdPaciente());
+        responseDto.setDescription(turno.getDescription());
+        responseDto.setDate(turno.getDate());
+        return responseDto;
     }
 }
