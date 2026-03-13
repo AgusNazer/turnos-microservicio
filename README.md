@@ -24,6 +24,12 @@ Tener instalado:
 Desde la raiz del proyecto (`turnos`):
 
 ```bash
+cp .env.example .env
+```
+
+Edita `.env` con tus credenciales.
+
+```bash
 docker compose up --build
 ```
 
@@ -54,18 +60,24 @@ Ejemplo de body para crear/actualizar:
 }
 ```
 
-## Variables de entorno (opcionales)
-Si queres sobreescribir valores por defecto de `docker-compose.yml`:
+## Variables de entorno (obligatorias)
+`docker-compose.yml` exige estas variables (sin defaults):
 
-- `MYSQL_DATABASE` (default: `turnos`)
-- `MYSQL_USER` (default: `agus`)
-- `MYSQL_PASSWORD` (default: `admin`)
-- `MYSQL_ROOT_PASSWORD` (default: `rootadmin`)
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_ROOT_PASSWORD`
 
-Ejemplo:
+Puedes definirlas en `.env` o exportarlas en tu shell.
+
+Ejemplo por terminal:
 
 ```bash
-MYSQL_USER=miusuario MYSQL_PASSWORD=miclave docker compose up --build
+MYSQL_DATABASE=turnos
+MYSQL_USER=miusuario
+MYSQL_PASSWORD=miclave_segura
+MYSQL_ROOT_PASSWORD=otra_clave_segura
+docker compose up --build
 ```
 
 ## Detener servicios
