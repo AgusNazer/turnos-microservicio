@@ -26,11 +26,12 @@ public class TurnoService implements ITurnoService {
 
     @Override
     public void saveTurno(Turnos turno) {
-        PatientDto paciente = patientClient.getPacienteById(turno.getIdPaciente());
-        if (paciente == null) {
+        try {
+            patientClient.getPacienteById(turno.getIdPaciente());
+            turnoRepository.save(turno);
+        } catch (feign.FeignException e) {
             throw new RuntimeException("Paciente con id " + turno.getIdPaciente() + " no encontrado");
         }
-        turnoRepository.save(turno);
     }
 
     @Override

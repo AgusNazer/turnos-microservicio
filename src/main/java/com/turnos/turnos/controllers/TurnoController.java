@@ -25,14 +25,17 @@ public class TurnoController {
     @Operation(summary = "Crear un turno")
     @PostMapping
     public ResponseEntity<String> createTurno(@RequestBody TurnoRequestDto turnoRequestDto) {
-        Turnos turno = new Turnos();
-        turno.setIdPaciente(turnoRequestDto.getIdPaciente());
-        turno.setDescription(turnoRequestDto.getDescription());
-        turno.setDate(turnoRequestDto.getDate());
-        turnoService.saveTurno(turno);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Turno creado exitosamente");
+        try {
+            Turnos turno = new Turnos();
+            turno.setIdPaciente(turnoRequestDto.getIdPaciente());
+            turno.setDescription(turnoRequestDto.getDescription());
+            turno.setDate(turnoRequestDto.getDate());
+            turnoService.saveTurno(turno);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Turno creado exitosamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
-
     @Operation(summary = "Obtener todos los turnos")
     @GetMapping
     public ResponseEntity<List<TurnoResponseDto>> getAllTurnos() {
